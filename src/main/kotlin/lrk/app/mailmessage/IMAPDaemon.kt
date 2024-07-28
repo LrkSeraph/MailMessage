@@ -60,6 +60,7 @@ object IMAPDaemon : MailProtocol {
                                 Log info "sender=$sender, subject=$subject, content=$contentString"
                                 ScriptRunner(paramMap["script"]!!, sender, subject, contentString.toString())
                                 imapMessage.setFlag(Flags.Flag.SEEN, true)
+                                imapMessage.setFlag(Flags.Flag.DELETED, true)
                             }
                         }
                     }

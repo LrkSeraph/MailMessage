@@ -18,6 +18,9 @@ object ParamParser {
                 }
             } else {
                 when {
+                    arg.startsWith("--no_log") -> result["disable_log"] = "true"
+                    arg.startsWith("--pop3") -> result["protocol"] = "pop3"
+                    arg.startsWith("--imap") -> result["protocol"] = "imap"
                     arg.startsWith("--config=") -> result.putAll(parseConfig(arg.substring("--config=".length)))
                     arg.startsWith("--account=") -> result["account"] = arg.substring("--account=".length)
                     arg.startsWith("--password=") -> result["password"] = arg.substring("--password=".length)
@@ -38,6 +41,7 @@ object ParamParser {
                 }
             }
         }
+        if (result["mode"] == "daemon" && !result.containsKey("protocol")) result["protocol"] = "pop3"
         if (!result.containsKey("sender") && result.containsKey("account")) result["sender"] = result["account"]!!
         if (message.isNotEmpty()) result["message"] = message.toString()
         return result
@@ -56,12 +60,13 @@ object ParamParser {
     fun usage() {
         println(
             """
-            usage: MailMessage mailto [--config=file path] [--account=] [--password=] [--smtp_server=] [--smtp_port=] [--sender=] --recipient= --subject= message
-                                daemon [--config=file path] [--account=] [--password=] [--imap_server=] [--imap_port=] [--pop3_server=] [--pop3_port=] --script=
+            usage: MailMessage mailto [--no_log] [--config=file path] [--account=] [--password=] [--smtp_server=] [--smtp_port=] [--sender=] --recipient= --subject= message
+                                daemon [--no_log] [--pop3|--imap] [--config=file path] [--account=] [--password=] [--imap_server=] [--imap_port=] [--pop3_server=] [--pop3_port=] --script=
             Mode:
                 mailto  send an email
-                daemon  read emails from pop3 server and execute the script with message as argument
+                daemon  read emails and execute the script with message as argument, default protocol is pop3
             Options:
+                --no_log        disable log file
                 --config        provide a config file 
                 --account       E-mail account
                 --password      E-mail password
